@@ -1,30 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
+import { useDispatch } from 'react-redux';
+import { addNote } from '../redux/notesSlice';
 import AddIcon from "@material-ui/icons/Add";
 import Fab from "@material-ui/core/Fab";
 import Zoom from "@material-ui/core/Zoom";
 
-function CreateArea(props) {
-  const [isExpanded, setExpanded] = React.useState(false);
-  const [note, setNote] = React.useState({ title: "", content: "" });
+function CreateArea() {
+  const dispatch = useDispatch();
+  const [isExpanded, setExpanded] = useState(false);
+  const [note, setNote] = useState({ title: "", content: "" });
 
   function handleChange(event) {
     const { name, value } = event.target;
-    setNote((prevValue) => {
-      return {
-        ...prevValue,
-        [name]: value
-      };
-    });
+    setNote(prevValue => ({
+      ...prevValue,
+      [name]: value
+    }));
   }
 
-  function addNote(event) {
-    props.onAdd(note);
-    setNote({ title: "", content: "" });
+  function submitNote(event) {
     event.preventDefault();
-  }
-
-  function expand() {
-    setExpanded(true);
+    if (note.title.trim() || note.content.trim()) {
+      dispatch(addNote(note));
+      setNote({ title: "", content: "" });
+    }
   }
 
   return (
@@ -38,17 +37,16 @@ function CreateArea(props) {
             placeholder="Title"
           />
         )}
-
         <textarea
           name="content"
-          onClick={expand}
+          onClick={() => setExpanded(true)}
           onChange={handleChange}
           value={note.content}
           placeholder="Take a note..."
           rows={isExpanded ? 3 : 1}
         />
         <Zoom in={isExpanded}>
-          <Fab onClick={addNote}>
+          <Fab onClick={submitNote}>
             <AddIcon />
           </Fab>
         </Zoom>
